@@ -1,8 +1,10 @@
 const router = require("express").Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
-// register
+const jwtGenerator = require("../utils/jwtGenerator");
+const { JsonWebTokenError } = require("jsonwebtoken");
 
+// register
 router.post("/register", async (req, res) => {
   try {
     //1.Destructure the req.body (name,email,password)
@@ -28,9 +30,11 @@ router.post("/register", async (req, res) => {
       [name, email, bcryptPassword]
     );
 
-    res.json(newUser);
-
     //5. generating out jwt token
+    const token = jwtGenerator(newUser.rows[0].user_id);
+
+    res.json({token})
+
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server error");
